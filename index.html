@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>测测我们的友情浓度</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+SC:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 赛博朋克霓虹色 */
+            --bg-color: #0b0c10;
+            --neon-cyan: #0ff;
+            --neon-pink: #f0f;
+            --neon-yellow: #ff0;
+            --neon-green: #39ff14;
+            --dark-gray: #1f2833;
+            --white: #fff;
+            
+            /* 像素阴影厚度 (模仿马里奥砖块) */
+            --pixel-shadow: 4px 4px 0px var(--neon-pink);
+            --pixel-border: 4px solid var(--neon-cyan);
+        }
+
+        /* 基础重置与扫描线背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--white);
+            font-family: 'Noto Sans SC', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* 赛博朋克 CRT 扫描线背景 */
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 20px 20px, 20px 20px, 100% 4px;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 400px; /* 强制锁定手机屏幕宽度 */
+            height: 100vh;
+            max-height: 850px; /* 强制锁定手机屏幕高度比例 */
+            /* 移除了背景色、边框和发光阴影 */
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10;
+            overflow-y: auto; /* 内容超出时允许内部滑动 */
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 隐藏滚动条让视觉更沉浸 */
+        #app::-webkit-scrollbar { display: none; }
+
+        /* 通用隐藏类 */
+        .hidden { display: none !important; }
+
+        /* 游戏机外框容器 */
+        .arcade-box {
+            background-color: rgba(11, 12, 16, 0.85);
+            border: var(--pixel-border);
+            box-shadow: 8px 8px 0px rgba(255, 0, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.2);
+            padding: 30px 20px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2; /* 确保游戏框在漂浮物之上 */
+            backdrop-filter: blur(5px);
+        }
+
+        /* 标题文字故障效果 (Glitch) */
+        h1, h2 { 
+            text-transform: uppercase; 
+            margin-top: 0; 
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: var(--neon-yellow);
+            text-shadow: 2px 2px 0px var(--neon-pink), -2px -2px 0px var(--neon-cyan);
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            font-size: 18px;
+            color: var(--neon-cyan);
+            border-bottom: 2px dashed var(--neon-pink);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            line-height: 1.6;
+            font-size: 15px;
+            color: #c5c6c7;
+            text-align: center;
+        }
+
+        /* 输入框 - 像素风 */
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            background-color: #000;
+            color: var(--neon-green);
+            border: 4px solid var(--neon-yellow);
+            box-shadow: 4px 4px 0px var(--dark-gray);
+            margin-bottom: 25px;
+            box-sizing: border-box;
+            font-family: 'Press Start 2P', 'Noto Sans SC', sans-serif;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 4px 4px 0px var(--neon-pink);
+        }
+
+        /* 像素风按钮 (融合马里奥跳跃砖块感) */
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: var(--neon-pink);
+            color: var(--white);
+            border: 4px solid var(--white);
+            box-shadow: 0px 6px 0px #8b008b, 0px 6px 0px 4px var(--bg-color); /* 3D厚度 */
+            font-size: 18px;
+            padding: 15px 10px;
+            cursor: pointer;
+            font-weight: 900;
+            text-align: center;
+            text-transform: uppercase;
+            transition: transform 0.1s, box-shadow 0.1s;
+            margin-bottom: 15px;
+            font-family: 'Noto Sans SC', sans-serif;
+            border-radius: 2px;
+        }
+        .btn:active {
+            transform: translateY(6px);
+            box-shadow: 0px 0px 0px transparent, 0px 0px 0px 0px transparent;
+        }
+        .btn.cyan { 
+            background-color: var(--neon-cyan); 
+            color: var(--bg-color); 
+            border-color: var(--white);
+            box-shadow: 0px 6px 0px #008b8b, 0px 6px 0px 4px var(--bg-color);
+        }
+        .btn.cyan:active {
+            transform: translateY(6px);
+            box-shadow: 0px 0px 0px transparent, 0px 0px 0px 0px transparent;
+        }
+
+        /* 答题选项按钮 */
+        .option-btn {
+            background-color: var(--dark-gray);
+            color: var(--neon-cyan);
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 4px 4px 0px #000;
+            text-align: left;
+            font-size: 16px;
+            padding: 12px 15px;
+        }
+        .option-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px transparent;
+        }
+
+        /* 进度条 */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: var(--dark-gray);
+            border: 2px solid var(--neon-cyan);
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--neon-pink);
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative; /* 允许子元素(头像)相对此容器绝对定位 */
+        }
+        .progress-avatar {
+            position: absolute;
+            right: -16px; /* 让头像居中贴在进度条最右侧 */
+            top: -8px; /* 向上溢出，营造跨在进度条上的感觉 */
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--neon-yellow);
+            border-radius: 4px;
+            background-color: #000;
+            box-shadow: 2px 2px 0px var(--neon-cyan);
+            image-rendering: pixelated; /* 强制像素化渲染体验 */
+            z-index: 10;
+        }
+        
+        /* 漂浮生日元素动画 */
+        @keyframes sway {
+            0% { transform: translateX(0px) rotate(-15deg); }
+            50% { transform: translateX(15px) rotate(15deg); }
+            100% { transform: translateX(0px) rotate(-15deg); }
+        }
+        .floating-item {
+            position: absolute;
+            font-size: 35px; /* 生日元素 emoji 大小 */
+            z-index: 1; /* 放在底层，游戏框后面 */
+            animation: sway 4s infinite ease-in-out;
+            filter: drop-shadow(2px 2px 0px var(--neon-cyan));
+            pointer-events: none; /* 防止遮挡用户的点击操作 */
+        }
+        /* 为十个漂浮物设置不同的起始位置、延迟和阴影颜色 */
+        .item-1 { top: 5%; left: 3%; animation-delay: 0s; filter: drop-shadow(2px 2px 0px var(--neon-cyan)); }
+        .item-2 { top: 15%; right: 4%; animation-delay: -1s; animation-direction: reverse; filter: drop-shadow(2px 2px 0px var(--neon-pink)); }
+        .item-3 { top: 25%; left: 6%; animation-delay: -2s; animation-duration: 5s; filter: drop-shadow(2px 2px 0px var(--neon-yellow)); }
+        .item-4 { top: 38%; right: 2%; animation-delay: -3s; animation-direction: reverse; filter: drop-shadow(2px 2px 0px var(--neon-cyan)); }
+        .item-5 { top: 50%; left: 2%; animation-delay: -1.5s; filter: drop-shadow(2px 2px 0px var(--neon-pink)); }
+        .item-6 { top: 62%; right: 5%; animation-delay: -0.5s; animation-duration: 4.5s; animation-direction: reverse; filter: drop-shadow(2px 2px 0px var(--neon-yellow)); }
+        .item-7 { top: 75%; left: 4%; animation-delay: -2.5s; filter: drop-shadow(2px 2px 0px var(--neon-cyan)); }
+        .item-8 { top: 85%; right: 3%; animation-delay: -4s; animation-direction: reverse; filter: drop-shadow(2px 2px 0px var(--neon-pink)); }
+        .item-9 { bottom: 2%; left: 8%; animation-delay: -3.5s; animation-duration: 5.5s; filter: drop-shadow(2px 2px 0px var(--neon-yellow)); }
+        .item-10 { bottom: 5%; right: 8%; animation-delay: -0.8s; animation-direction: reverse; filter: drop-shadow(2px 2px 0px var(--neon-cyan)); }
+
+        .progress-text {
+            text-align: right;
+            margin-bottom: 8px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            color: var(--neon-yellow);
+        }
+
+        /* 通关结果卡片 (赛博像素风) */
+        .cyber-card {
+            background: #000;
+            padding: 20px;
+            border: 4px dashed var(--neon-green);
+            margin: 20px 0;
+            position: relative;
+        }
+        .cyber-card img { 
+            width: 100%; 
+            border: 2px solid var(--neon-pink); 
+            display: block; 
+            image-rendering: pixelated; /* 强制像素化渲染体验 */
+        }
+        .card-text { 
+            text-align: center; 
+            font-size: 20px; 
+            margin-top: 20px; 
+            color: var(--neon-cyan); 
+        }
+        .clue-char { 
+            font-size: 70px; 
+            display: block; 
+            margin-top: 15px; 
+            color: var(--neon-yellow); 
+            text-shadow: 0 0 10px var(--neon-yellow);
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        /* 冷冻惩罚全屏层 */
+        #freeze-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(20, 0, 0, 0.95);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--neon-pink);
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(255, 0, 85, 0.1),
+                rgba(255, 0, 85, 0.1) 10px,
+                rgba(0, 0, 0, 0.8) 10px,
+                rgba(0, 0, 0, 0.8) 20px
+            );
+        }
+        #freeze-screen h2 { 
+            font-size: 32px; 
+            margin-bottom: 20px; 
+            color: #ff003c;
+            text-shadow: 2px 2px 0px #fff;
+            border: none;
+        }
+        #countdown { 
+            font-size: 100px; 
+            font-family: 'Press Start 2P', monospace;
+            color: var(--neon-yellow);
+            text-shadow: 4px 4px 0px #ff003c; 
+        }
+
+        /* 自定义消息弹窗 */
+        #msg-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .msg-modal-box {
+            background: #000;
+            border: 4px solid var(--neon-pink);
+            box-shadow: 8px 8px 0px var(--neon-cyan);
+            padding: 20px;
+            width: 80%;
+            max-width: 320px;
+            text-align: center;
+        }
+        .msg-modal-text {
+            color: var(--white);
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .msg-btn {
+            background: var(--neon-green);
+            color: #000;
+            border: 2px solid var(--white);
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .msg-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- 漂浮的生日派对元素 (扩展到10个) -->
+    <div class="floating-item item-1">🎂</div>
+    <div class="floating-item item-2">🥳</div>
+    <div class="floating-item item-3">🕯️</div>
+    <div class="floating-item item-4">🎉</div>
+    <div class="floating-item item-5">🎁</div>
+    <div class="floating-item item-6">🎈</div>
+    <div class="floating-item item-7">🥂</div>
+    <div class="floating-item item-8">🎵</div>
+    <div class="floating-item item-9">🍰</div>
+    <div class="floating-item item-10">✨</div>
+
+    <!-- 1. 登录校验页 -->
+    <div id="screen-login" class="arcade-box">
+        <h1>测测我们的友情浓度</h1>
+        <h2>[ INSERT NAME ]</h2>
+        <p><strong>MISSION:</strong> 破解寿星的生日聚餐地点。</p>
+        <p style="font-size: 13px;">请输入你的专属代号或昵称。验证失败将无法进入游戏！</p>
+        
+        <input type="text" id="playerName" placeholder="输入代号 (如: 钢蛋)" autocomplete="off">
+        <button class="btn" onclick="app.login()">START GAME</button>
+    </div>
+
+    <!-- 2. 答题考核页 -->
+    <div id="screen-quiz" class="arcade-box hidden">
+        <div class="progress-text">STAGE <span id="q-progress-text">1/8</span></div>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="q-progress-bar">
+                <!-- 进度条头像占位 -->
+                <img src="https://placehold.co/32x32/39ff14/000000?text=ME" alt="Avatar" class="progress-avatar">
+            </div>
+        </div>
+
+        <h2 id="q-title" style="font-size: 18px; line-height: 1.4; color: var(--white); border: none; text-align: left; text-shadow: 1px 1px 0px var(--neon-pink);">
+            LOADING...
+        </h2>
+        
+        <div id="q-options" style="margin-top: 20px;">
+            <!-- 选项按钮挂载点 -->
+        </div>
+    </div>
+
+    <!-- 3. 结果揭晓页 -->
+    <div id="screen-result" class="arcade-box hidden">
+        <h1 style="color: var(--neon-green);">STAGE CLEAR!</h1>
+        <p style="font-weight: bold; color: var(--neon-cyan);">快把你的线索发到微信群里，集齐拼图解锁地点！</p>
+        
+        <div class="cyber-card">
+            <!-- 像素风/游戏风 GIF 动图 (如果需要更换，直接替换 src 里的链接即可) -->
+            <img src="https://media.giphy.com/media/xT0xezQGU5xCDJuCPe/giphy.gif" alt="Stage Clear GIF">
+            <div class="card-text">
+                玩家 <span id="res-name" style="color: var(--neon-pink);">代号</span> 解锁线索
+                <span class="clue-char" id="res-clue">X</span>
+            </div>
+        </div>
+
+        <button class="btn cyan" onclick="app.copyClue()">📋 一键复制战报</button>
+    </div>
+</div>
+
+<!-- 惩罚机制全屏遮罩 (修改为 15 秒) -->
+<div id="freeze-screen" class="hidden">
+    <h2>SYSTEM LOCKED</h2>
+    <p style="font-weight: bold; font-size: 18px; color: var(--white); background: #000; padding: 5px 10px;">连续失误！友情冷却中...</p>
+    <div id="countdown">15</div>
+</div>
+
+<!-- 自定义消息提示框 (替代 Alert) -->
+<div id="msg-modal-overlay" class="hidden">
+    <div class="msg-modal-box">
+        <div class="msg-modal-text" id="msg-modal-content">提示内容</div>
+        <button class="msg-btn" onclick="app.closeMessage()">CONFIRM</button>
+    </div>
+</div>
+
+<script>
+/**
+ * 核心逻辑实现
+ */
+const app = {
+    // === 数据配置区 ===
+    // 别名池映射：每个线索字对应一个数组，包含该玩家所有可能的代号（请全用小写字母或中文填写）
+    playerMap: {
+        "T": ["大哥", "哥哥", "simon"],
+        "H": ["而已", "serena", "S"],
+        "AI": ["小美", "viki", "小舅妈"],
+        "G": ["崔姐", "牛奶皮肤"],
+        "A": ["馆长", "夏律"],
+        "LL": ["绾绾", "碗碗"],
+        "E": ["祈林", "麒麟"],
+        "R": ["晓杭", "杭","小杭"],
+        "Y": ["艾瑞斯", "iris"],
+        "静安": ["马超", "马哥", "孙佳"]
+    },
+    
+    // 扩充至 20 道的寿星专属题库
+    questionPool: [
+        { q: "以下哪一个不是寿星的花名？", options: ["钢蛋", "简哥", "小方", "珍妮"], ans: 3 },
+        { q: "寿星的上升星座是？", options: ["天蝎", "天秤", "双鱼", "水瓶"], ans: 2 },
+        { q: "以下哪个不是寿星的爱好？", options: ["网球", "泰拳", "跑步", "钓鱼"], ans: 3 },
+        { q: "寿星口头禅是哪一句？", options: ["哎哟不错哦", "无语了家人们", "吃什么？", "在路上了"], ans: 2 },
+        { q: "寿星家里有几个绿植？", options: ["0", "1", "2", "3"], ans: 3 },
+        { q: "如果寿星流落荒岛，只能带一样东西，TA会带？", options: ["手机", "打火机", "零食大礼包", "一本书"], ans: 0 },
+        { q: "以下哪一个不是寿星喜欢的歌手风格？", options: ["JAY CHOU", "EASON", "LESLIE", "ANDY"], ans: 3 },
+        { q: "寿星发朋友圈的频率大概是？", options: ["一天三条", "三天可见且不发", "只发吃喝玩乐", "全靠心情"], ans: 3 },
+        { q: "寿星恨牙痒痒的同事有？", options: ["菜头", "卤蛋", "老鼠", "以上都是"], ans: 3 },
+        { q: "寿星认为自己最大的优点是？", options: ["长得好看", "脾气好", "幽默", "以上都是"], ans: 3 },
+        // 新增 10 题
+        { q: "寿星的隐藏技能是？", options: ["射击", "唱歌", "马拉松", "诗朗诵"], ans: 0 },
+        { q: "寿星平时最常点的外卖品类是？", options: ["奶茶果饮", "炸鸡汉堡", "健康轻食", "麻辣烫/香锅"], ans: 2 },
+        { q: "寿星手上有几根手串？", options: ["2", "4", "6", "不戴串"], ans: 1 },
+        { q: "寿星曾经养过的的那只狗叫什么？", options: ["CAPTON", "WHISKY", "WANGCAI", "FACAI"], ans: 1 },
+        { q: "寿星最喜欢的宠物是？", options: ["猫咪", "狗狗", "异宠(爬宠)", "不养宠物只云吸"], ans: 1 },
+        { q: "以下哪位朋友和寿星认识最久？", options: ["大哥", "而已（Serena）", "艾瑞斯", "小美"], ans: 2 },
+        { q: "当前这份工作是寿星的第几份工作？", options: ["1", "2", "3", "4"], ans: 3 },
+        { q: "寿星的男朋友是哪一位？", options: ["白敬亭", "李现", "黄景瑜", "王嘉尔"], ans: 2 },
+        { q: "寿星生气时的表现是？", options: ["大吵一架", "疯狂疯狂购物", "化悲愤为食欲", "一声不吭生闷气"], ans: 3 },
+        { q: "如果给寿星一百万，第一件事会干嘛？", options: ["买房首付", "买辆跑车", "辞职环游世界", "存银行吃利息"], ans: 3 }
+    ],
+
+    // === 状态变量 ===
+    currentUser: "",
+    currentClue: "",
+    selectedQuestions: [],
+    currentQIndex: 0,
+    mistakeCount: 0,
+    msgCallback: null,
+    
+    // === 方法区 ===
+    init() {
+        console.log("Arcade System Initialized...");
+    },
+
+    // 自定义消息弹窗
+    showMessage(text, callback = null) {
+        document.getElementById('msg-modal-content').innerText = text;
+        document.getElementById('msg-modal-overlay').classList.remove('hidden');
+        this.msgCallback = callback;
+    },
+
+    closeMessage() {
+        document.getElementById('msg-modal-overlay').classList.add('hidden');
+        if (this.msgCallback) {
+            this.msgCallback();
+            this.msgCallback = null;
+        }
+    },
+
+    // 1. 登录校验
+    login() {
+        const inputStr = document.getElementById("playerName").value.trim().toLowerCase();
+        if (!inputStr) {
+            this.showMessage("ERROR: 代号不能为空！");
+            return;
+        }
+
+        let matchedClue = null;
+
+        // 遍历别名池，进行联想词匹配
+        for (const clue in this.playerMap) {
+            const aliases = this.playerMap[clue];
+            // 如果玩家输入的词在联想词数组中，则匹配成功
+            if (aliases.includes(inputStr)) {
+                matchedClue = clue;
+                break;
+            }
+        }
+
+        if (matchedClue) {
+            this.currentUser = document.getElementById("playerName").value.trim(); // 保留用户输入的原始大小写
+            this.currentClue = matchedClue;
+            
+            // 准备答题
+            this.prepareQuiz();
+            this.switchScreen('screen-login', 'screen-quiz');
+        } else {
+            // 查无此人拦截
+            this.showMessage("ACCESS DENIED: 查无此人，明年再试试 😉");
+        }
+    },
+
+    // 准备题目（从20题中随机抽取8题）
+    prepareQuiz() {
+        // 洗牌算法打乱题库
+        let shuffled = [...this.questionPool].sort(() => 0.5 - Math.random());
+        // 截取8道题
+        this.selectedQuestions = shuffled.slice(0, 8);
+        this.currentQIndex = 0;
+        this.mistakeCount = 0;
+        this.renderQuestion();
+    },
+
+    // 渲染当前题目
+    renderQuestion() {
+        if (this.currentQIndex >= this.selectedQuestions.length) {
+            this.finishQuiz();
+            return;
+        }
+
+        const qData = this.selectedQuestions[this.currentQIndex];
+        const total = this.selectedQuestions.length;
+        
+        // 更新进度条与文本
+        document.getElementById('q-progress-text').innerText = `${this.currentQIndex + 1} / ${total}`;
+        const progressPercent = ((this.currentQIndex) / total) * 100;
+        document.getElementById('q-progress-bar').style.width = `${progressPercent}%`;
+        
+        document.getElementById('q-title').innerText = `Q${this.currentQIndex + 1}: ` + qData.q;
+
+        const optsContainer = document.getElementById('q-options');
+        optsContainer.innerHTML = ''; // 清空上一题选项
+
+        qData.options.forEach((optText, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn option-btn';
+            btn.innerText = `${String.fromCharCode(65 + index)}. ${optText}`;
+            btn.onclick = () => this.checkAnswer(index, qData.ans);
+            optsContainer.appendChild(btn);
+        });
+    },
+
+    // 校验答案与冷冻惩罚机制
+    checkAnswer(selectedIndex, correctIndex) {
+        if (selectedIndex === correctIndex) {
+            // 答对，进入下一题
+            this.currentQIndex++;
+            this.renderQuestion();
+        } else {
+            // 答错，累计错误次数
+            this.mistakeCount++;
+            if (this.mistakeCount >= 2) {
+                this.triggerFreeze();
+            } else {
+                this.showMessage("WARNING: 答错了！\n再错一次友情将降温 15 秒！");
+            }
+        }
+    },
+
+    // 触发 15s 画面冷冻惩罚
+    triggerFreeze() {
+        const freezeScreen = document.getElementById('freeze-screen');
+        const countText = document.getElementById('countdown');
+        freezeScreen.classList.remove('hidden');
+        
+        // 改为 15 秒
+        let timeLeft = 15;
+        countText.innerText = timeLeft;
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            countText.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                freezeScreen.classList.add('hidden');
+                this.mistakeCount = 0; // 解冻后重置错误次数
+                this.showMessage("SYSTEM REBOOTED: 系统解冻，请继续作答！");
+            }
+        }, 1000);
+    },
+
+    // 结束考核，生成结果
+    finishQuiz() {
+        // 满进度条
+        document.getElementById('q-progress-bar').style.width = `100%`;
+        
+        setTimeout(() => {
+            document.getElementById('res-name').innerText = this.currentUser;
+            document.getElementById('res-clue').innerText = this.currentClue;
+            this.switchScreen('screen-quiz', 'screen-result');
+        }, 500); // 稍微延迟一下让玩家看到进度条填满
+    },
+
+    // 一键复制社交引导文案
+    copyClue() {
+        const text = `我拿到的字是【${this.currentClue}】！吃饭地点还差谁的？`;
+        
+        // 剪贴板复制逻辑
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => {
+                this.showMessage("✅ 战报已复制！\n快去微信群粘贴寻找同伴吧！");
+            }).catch(err => {
+                this.fallbackCopyTextToClipboard(text);
+            });
+        } else {
+            this.fallbackCopyTextToClipboard(text);
+        }
+    },
+
+    fallbackCopyTextToClipboard(text) {
+        let textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            this.showMessage("✅ 战报已复制！\n快去微信群粘贴寻找同伴吧！");
+        } catch (err) {
+            this.showMessage("复制失败，请手动长按大字复制哦。");
+        }
+        textArea.remove();
+    },
+
+    // 切换界面显示状态的工具方法
+    switchScreen(hideId, showId) {
+        document.getElementById(hideId).classList.add('hidden');
+        document.getElementById(showId).classList.remove('hidden');
+    }
+};
+
+// 启动应用
+app.init();
+
+</script>
+</body>
+</html>
