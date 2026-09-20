@@ -186,11 +186,19 @@
             position: relative;
         }
         .progress-bar-fill {
-            height: 100%;
-            background-color: var(--neon-pink);
-            width: 0%;
-            transition: width 0.3s ease;
-            position: relative; /* 允许子元素(头像)相对此容器绝对定位 */
+            position: absolute;
+    right: -15px; /* 使 emoji 中心对齐进度条末端 */
+    top: -15px;   /* 垂直居中于进度条 */
+    width: 30px;
+    height: 30px;
+    background-color: var(--black);
+    border: 2px solid var(--neon-yellow);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    box-shadow: 0 0 5px var(--neon-yellow);
         }
         .progress-avatar {
             width: 35px !important;  /* 强制宽度 */
@@ -369,7 +377,7 @@
         <div class="progress-bar-container">
             <div class="progress-bar-fill" id="q-progress-bar">
                 <!-- 进度条头像占位 -->
-                <img src="进度条.JPG">
+                <div class="progress-emoji">🎂</div>
             </div>
         </div>
 
@@ -573,7 +581,7 @@ const app = {
             if (this.mistakeCount >= 2) {
                 this.triggerFreeze();
             } else {
-                this.showMessage("WARNING: 答错了！\n再错一次友情将降温 15 秒！");
+                this.showMessage("WARNING: 答错了！\n再错一次友情将降温 10 秒！");
             }
         }
     },
@@ -584,8 +592,8 @@ const app = {
         const countText = document.getElementById('countdown');
         freezeScreen.classList.remove('hidden');
         
-        // 改为 15 秒
-        let timeLeft = 15;
+        // 改为 10 秒
+        let timeLeft = 10;
         countText.innerText = timeLeft;
 
         const timer = setInterval(() => {
