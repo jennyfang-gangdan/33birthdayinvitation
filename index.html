@@ -193,17 +193,11 @@
             position: relative; /* 允许子元素(头像)相对此容器绝对定位 */
         }
         .progress-avatar {
-            position: absolute;
-            right: -16px; /* 让头像居中贴在进度条最右侧 */
-            top: -8px; /* 向上溢出，营造跨在进度条上的感觉 */
-            width: 32px;
-            height: 32px;
-            border: 2px solid var(--neon-yellow);
-            border-radius: 4px;
-            background-color: #000;
-            box-shadow: 2px 2px 0px var(--neon-cyan);
-            image-rendering: pixelated; /* 强制像素化渲染体验 */
-            z-index: 10;
+            width: 35px !important;  /* 强制宽度 */
+            height: 35px !important; /* 强制高度，和宽度一样就是正方形 */
+            object-fit: cover !important; /* 神奇属性：保证图片按比例缩放裁剪，绝对不拉伸变形 */
+            display: block;
+            border-radius: 4px; /* 稍微给一点圆角，更符合电玩像素风 */
         }
         
         /* 漂浮生日元素动画 */
@@ -249,10 +243,11 @@
             position: relative;
         }
         .cyber-card img { 
-            width: 100%; 
-            border: 2px solid var(--neon-pink); 
-            display: block; 
-            image-rendering: pixelated; /* 强制像素化渲染体验 */
+            width: 100% !important;  /* 宽度占满卡片 */
+            height: 220px !important; /* 强制锁定高度为 220 像素，防止长图把屏幕撑到下面去 */
+            object-fit: cover !important; /* 同样保证图片按比例填满，多余的部分会被自动裁剪掉 */
+            box-sizing: border-box;
+            display: block;
         }
         .card-text { 
             text-align: center; 
