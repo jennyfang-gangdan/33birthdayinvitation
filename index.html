@@ -186,19 +186,11 @@
             position: relative;
         }
         .progress-bar-fill {
-            position: absolute;
-    right: -15px; /* 使 emoji 中心对齐进度条末端 */
-    top: -15px;   /* 垂直居中于进度条 */
-    width: 30px;
-    height: 30px;
-    background-color: var(--black);
-    border: 2px solid var(--neon-yellow);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    box-shadow: 0 0 5px var(--neon-yellow);
+            height: 100%;
+            background-color: var(--neon-pink);
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative; /* 允许子元素(头像)相对此容器绝对定位 */
         }
         .progress-avatar {
             width: 35px !important;  /* 强制宽度 */
